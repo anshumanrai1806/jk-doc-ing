@@ -1,0 +1,52 @@
+# API Documentation
+
+This document provides a comprehensive overview of the available API endpoints, their purposes, token requirements, and testing instructions including load testing scripts.
+
+---
+
+## Table of Contents
+
+1. [Authentication](#authentication)
+2. [User Management](#user-management)
+3. [Document Management](#document-management)
+4. [Ingestion API](#ingestion-api)
+5. [Token Requirements](#token-requirements)
+6. [Testing Instructions](#testing-instructions)
+   - [Unit & Integration Testing](#unit--integration-testing)
+   - [Load Testing with k6](#load-testing-with-k6)
+7. [Deployment & CI/CD Overview](#deployment--cicd-overview)
+
+---
+
+## 1. Authentication
+
+### Endpoints
+
+#### **POST /auth/register**
+- **Description:** Register a new user.
+- **Request Body:** JSON object with user details (e.g., `username`, `password`, `email`).
+- **Access:** Public (no token required).
+
+#### **POST /auth/login**
+- **Description:** Authenticate a user and receive an access token.
+- **Request Body:** JSON with `username` and `password`.
+- **Response:** Returns a JSON object with `access_token`.
+- **Access:** Public.
+
+#### **GET /auth/me**
+- **Description:** Retrieve details of the currently authenticated user.
+- **Access:** Requires a valid JWT token in the `Authorization` header.
+
+---
+
+## 2. User Management
+
+### Endpoints
+
+#### **PUT /admin/users/:id/role**
+- **Description:** Update a user's role (Admin-only).
+- **Request Body:** 
+  ```json
+  {
+    "role": "editor"  // Allowed values: "viewer", "editor", "admin"
+  }
