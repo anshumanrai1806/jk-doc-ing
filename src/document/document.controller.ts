@@ -92,15 +92,19 @@ export class DocumentController {
   })
   async updateDocument(
     @Req() req,
-    @Param('id') id: number,
+    @Param('doc_id') doc_id: number,
     @Body() updateDocumentDto: CreateDocumentDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const { role } = req.user;
+    const { role , id} = req.user;
     if (role !== 'admin' && role !== 'editor') {
       throw new ForbiddenException('Only editors and admins can update documents.');
     }
-    return this.documentService.update(id, updateDocumentDto, file);
+    let isAdmin = false;
+    if(role == "admin") {
+      isAdmin = true;
+    }
+    return this.documentService.update(doc_id, updateDocumentDto, id , isAdmin , file);
   }
 
   @Delete(':id')
@@ -109,13 +113,17 @@ export class DocumentController {
   @ApiOperation({ summary: 'Delete a document (Editor/Admin only)' })
   async deleteDocument(
     @Req() req,
-    @Param('id') id: number
+    @Param('id') doc_id: number
   ) {
-    const { role } = req.user;
+    const { role , id} = req.user;
     if (role !== 'admin' && role !== 'editor') {
-      throw new ForbiddenException('Only editors and admins can delete documents.');
+      throw new ForbiddenException('Only editors and admins can update documents.');
     }
-    return this.documentService.delete(id);
+    let isAdmin = false;
+    if(role == "admin") {
+      isAdmin = true;
+    }
+    return this.documentService.delete(doc_id , id , isAdmin);
   }
 
 }

@@ -1,29 +1,32 @@
 import { Controller, Post, Body, Get, Param, ParseIntPipe, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { IngestionService } from './injestion.service';
-import { CreateIngestionDto } from 'src/dto/create-ingestion.dto';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { IngestionRecord, IngestionService } from './injestion.service';
 
 @ApiTags('Ingestion')
 @Controller('ingestion')
 export class IngestionController {
-  constructor(private readonly ingestionService: IngestionService) {}
+  constructor(private readonly ingestionService: IngestionService) { }
 
   @Post('trigger')
   @ApiOperation({ summary: 'Trigger ingestion for a document' })
-  async triggerIngestion(@Body() createIngestionDto: CreateIngestionDto) {
-    const { documentId, userId } = createIngestionDto;
-    if (!documentId || !userId) {
-      throw new HttpException('documentId and userId are required', HttpStatus.BAD_REQUEST);
-    }
-    // Pass both documentId and userId to the service (make sure your service accepts both)
-    return this.ingestionService.triggerIngestion(documentId, userId);
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'number', example: 123 },
+        userId: { type: 'number', example: 456 },
+      },
+    },
+  })
+  async triggerIngestion(@Body() body: { documentId: number; userId: number }) {
+    return this.ingestionService.triggerIngestion(body.documentId, body.userId);
   }
 
   @Get('status/:documentId')
   @ApiOperation({ summary: 'Check ingestion status for a document' })
   async getStatus(@Param('documentId', ParseIntPipe) documentId: number) {
     const status = await this.ingestionService.getIngestionStatus(documentId);
-    if (!status || status.length === 0) {
+    if (!status) {
       throw new HttpException('No ingestion found for this document', HttpStatus.NOT_FOUND);
     }
     return status;

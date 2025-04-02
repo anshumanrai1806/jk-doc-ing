@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +18,20 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000); // Use PORT from .env, default to 3000
+
+  const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.REDIS,
+    options: {
+      host: configService.get<string>('REDIS_HOST', 'localhost'),
+      port: configService.get<number>('REDIS_PORT', 6379),
+    },
+  });
+  await microservice.listen();
+  console.log('📢 Microservice for Ingestion started');
+
+  // Event Emitter (For Ingestion Events)
+  const eventEmitter = app.get(EventEmitter2);
+  eventEmitter.emit('app.started', {});
 
   // Swagger Configuration
   const swaggerConfig = new DocumentBuilder()

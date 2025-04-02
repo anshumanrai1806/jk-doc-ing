@@ -7,10 +7,12 @@ import { UserManagementModule } from './user-management/user-management.module';
 import { DocumentModule } from './document/document.module';
 import { IngestionModule } from './injestion/injestion.module';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    EventEmitterModule.forRoot(),
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule,
     UserManagementModule,

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDocumentDto } from 'src/dto/create-document.dto';
 import { DocumentEntity } from 'src/entities/document.entity';
@@ -9,7 +9,7 @@ export class DocumentService {
   constructor(
     @InjectRepository(DocumentEntity)
     private readonly documentRepository: Repository<DocumentEntity>,
-  ) {}
+  ) { }
 
   async getAllDocuments(): Promise<DocumentEntity[]> {
     return this.documentRepository.find();
@@ -25,7 +25,7 @@ export class DocumentService {
 
   async create(createDocumentDto: CreateDocumentDto, userId: number, file?: Express.Multer.File): Promise<DocumentEntity> {
     let fileChunks: string[] = [];
-  
+
     if (file && file.buffer) {
       // Convert file buffer to a base64-encoded string
       const fileContentBase64 = file.buffer.toString('base64');
@@ -37,7 +37,7 @@ export class DocumentService {
       // If file is not provided, you could throw an error or set fileChunks to undefined
       fileChunks = [];
     }
-  
+
     const newDoc = this.documentRepository.create({
       title: createDocumentDto.title,
       userId,
@@ -46,17 +46,31 @@ export class DocumentService {
       mimeType: file ? file.mimetype : undefined,
       fileChunks: fileChunks,
     } as Partial<DocumentEntity>);
-  
+
     return this.documentRepository.save(newDoc);
   }
 
   async update(
-    id: number,
-    updateDocumentDto: CreateDocumentDto, // or UpdateDocumentDto if available
-    file?: Express.Multer.File
+    doc_id: number,
+    updateDocumentDto: CreateDocumentDto, // or UpdateDocumentDto if available,
+    id,
+    isAdmin,
+    file?: Express.Multer.File  
   ): Promise<DocumentEntity> {
+
+    const document = await this.documentRepository.findOne({ where: { id: doc_id } });
+
+    if (!document) {
+      throw new NotFoundException('Document not found.');
+    }
+
+    // Check if the user is authorized to update
+    if (document.userId !== id && !isAdmin) {
+      throw new ForbiddenException('Editors can only update their own documents.');
+    }
+
     let updateData: Partial<DocumentEntity> = {
-      title : updateDocumentDto.title
+      title: updateDocumentDto.title
     };
 
     if (file && file.buffer) {
@@ -74,12 +88,23 @@ export class DocumentService {
         fileChunks: fileChunks,
       };
     }
-  
-    await this.documentRepository.update(id, updateData);
+
+    await this.documentRepository.update(doc_id, updateData);
     return this.getDocumentById(id);
   }
 
-  async delete(id: number): Promise<{ message: string }> {
+  async delete(doc_id: number , id: number, isAdmin): Promise<{ message: string }> {
+    const document = await this.documentRepository.findOne({ where: { id: doc_id } });
+
+    if (!document) {
+      throw new NotFoundException('Document not found.');
+    }
+
+    // Check if the user is authorized to update
+    if (document.userId !== id && !isAdmin) {
+      throw new ForbiddenException('Editors can only update their own documents.');
+    }
+    
     await this.documentRepository.delete(id);
     return { message: 'Document deleted successfully' };
   }
