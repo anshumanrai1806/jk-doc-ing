@@ -16,7 +16,8 @@ curl -X 'POST' \
   "username" : "admin", "password" : "password"
 }'
 
-//as an editor
+as an editor
+
 curl -X 'POST' \
   'http://localhost:3000/auth/login' \
   -H 'accept: */*' \
