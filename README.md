@@ -5,6 +5,7 @@ npm install
 
   # to run the app
 npm run start:dev
+
 Use this access_token to get access to the application as an admin
 
 curl -X 'POST' \
