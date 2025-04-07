@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { LoginDto } from '../dto/login.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
 
   // Register a new user
   async register(createUserDto: CreateUserDto): Promise<{ message: string }> {
-    const { username, password, role } = createUserDto;
+    const { username, password } = createUserDto;
 
     const existingUser = await this.userRepository.findOne({ where: { username } });
     if (existingUser) {
@@ -28,7 +29,7 @@ export class AuthService {
     const newUser = this.userRepository.create({
       username,
       password: hashedPassword,
-      role: role as UserRole,  // Explicitly cast the role
+      role: UserRole.VIEWER,  // Explicitly cast the role
     });
 
 

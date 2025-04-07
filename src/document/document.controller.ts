@@ -63,7 +63,7 @@ export class DocumentController {
     @Body() createDocumentDto: CreateDocumentDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const { role , id} = req.user;
+    const { role, id } = req.user;
     if (role !== 'admin' && role !== 'editor') {
       throw new ForbiddenException('Only editors and admins can create documents.');
     }
@@ -92,19 +92,21 @@ export class DocumentController {
   })
   async updateDocument(
     @Req() req,
-    @Param('doc_id') doc_id: number,
+    @Param('id') doc_id: number,
     @Body() updateDocumentDto: CreateDocumentDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const { role , id} = req.user;
+    const { role, id } = req.user;
     if (role !== 'admin' && role !== 'editor') {
       throw new ForbiddenException('Only editors and admins can update documents.');
     }
+
     let isAdmin = false;
-    if(role == "admin") {
+    if (role === 'admin') {
       isAdmin = true;
     }
-    return this.documentService.update(doc_id, updateDocumentDto, id , isAdmin , file);
+
+    return this.documentService.update(doc_id, updateDocumentDto, id, isAdmin, file);
   }
 
   @Delete(':id')
@@ -115,15 +117,15 @@ export class DocumentController {
     @Req() req,
     @Param('id') doc_id: number
   ) {
-    const { role , id} = req.user;
+    const { role, id } = req.user;
     if (role !== 'admin' && role !== 'editor') {
       throw new ForbiddenException('Only editors and admins can update documents.');
     }
     let isAdmin = false;
-    if(role == "admin") {
+    if (role == "admin") {
       isAdmin = true;
     }
-    return this.documentService.delete(doc_id , id , isAdmin);
+    return this.documentService.delete(doc_id, id, isAdmin);
   }
 
 }
