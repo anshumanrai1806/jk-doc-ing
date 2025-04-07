@@ -54,7 +54,7 @@ NOTE : - Using above API , it will return an access_token which will be valid fo
 
 ## Types of Users
 Admin
-This user can any operation in the application such as : 
+This user can any perform operation in the application such as : 
 
 Change the role of the user
 Fetch all the users
