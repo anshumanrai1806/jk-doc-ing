@@ -154,15 +154,30 @@ Note : admin can edit/delete any doc but the editor can only edit/delete his/her
 
 
 
-### Ingestion : 
-POST /ingestion/trigger
+1. Trigger Document Ingestion
+Endpoint: /ingestion/trigger
 
-request body example
+Method: POST
+
+Request Body Example:
 {
   "documentId": 123,
   "userId": 456
 }
+Description: This API triggers the ingestion process for the document identified by documentId and associates it with the userId. The ingestion process is event-driven, meaning it will asynchronously process the ingestion via microservices, and the status will be updated once the processing is completed.
+
+Note: The ingestion process is handled through an event-driven architecture where a message is emitted to a queue, which is consumed by the relevant microservices for processing. The status of the ingestion will be updated in real-time once the microservices complete the process.
 
 
-GET /ingestion/status/{documentId}
+
+2. Get Ingestion Status
+Endpoint: /ingestion/status/{documentId}
+
+Method: GET
+
+Description: This API fetches the current status of the ingestion process for a specific document identified by documentId.
+
+Note: The status is updated asynchronously after the ingestion process is completed. You can check the status at any point by calling this endpoint. The status will indicate whether the ingestion was successful, failed, or is still in progress.
+
+
 
